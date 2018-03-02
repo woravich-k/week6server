@@ -65,6 +65,32 @@ app.get('/postgistest',function (req,res){
 });
 
 
+app.get('/getPOI', function (req,res) {
+	pool.connect(function(err,client,done){
+		if(err){
+			console.log("not able to get connection " + err);
+			res.status(400).send(err);
+		}
+		// use the inbuilt geoJSON functionality
+		// and create the required geoJSON format using a query adapted from here: http://www.postgresonline.com/journal/archives/267-Creating-GeoJSON-Feature-Collections-with-JSON-and-PostGIS-functions.html, access on 02/03/2018
+		// note that query needs to be a single string with no line breaks so built it up bit by bit
+		
+		var querystring = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM ";
+		querystring = querystring + "(SELECT 'Feature' As type, ST_AsGeoJSON(lg.geom)::json As geometry, ";
+		querystring = querystring + "row_to_json((SELECT l FROM (SELECT id, name, category) as l )) as properties ";
+		querystring = querystring + "FROM united_kingdom_poi as lg limit 100) As F";
+		console.log(querystring);
+		client.query(querystring,function(err,result){
+			//call 'done()' to release the client back to the pool done();
+			if(err){
+				console.log(err)
+				res.status(400).send(err);
+			}
+			res.status(200).send(result.rows);
+		});
+	});
+});
+
 
 	// the / indicates the path that you type into the server - in this case, what happens when you type in:  http://developer.cege.ucl.ac.uk:32560/xxxxx/xxxxx
   app.get('/:name1', function (req, res) {
