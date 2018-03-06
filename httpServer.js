@@ -35,6 +35,7 @@ var app = express();
 
 var fs = require("fs");
 //read in the file and force it to be a string by adding "" at the beginning
+//var configtext = "" + fs.readFileSync(__dirname+"/postGISConnection.js");
 var configtext = "" + fs.readFileSync("/home/studentuser/certs/postGISConnection.js");
 
 //now convert the configuration file into the correct format -i.e. a name/value pair array
