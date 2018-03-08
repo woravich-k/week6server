@@ -146,6 +146,22 @@ app.get('/getGeoJSON/:tablename/:geomcolumn',function(req,res){
 		});
 	});
 });
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({
+	extended: true
+}));
+app.use(bodyParser.json());
+
+app.post('/uploadData',function(req,res){
+	//note that we using POST here as we are uploading data
+	//so the parameters form part of the BODY of the requet rather than the RESTful API
+	console.dir(req.body);
+	
+	//for now, just echo the request back to the client
+	res.send(req.body);
+});
+
 	
 			
 
