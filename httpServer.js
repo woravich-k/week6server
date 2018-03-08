@@ -158,8 +158,30 @@ app.post('/uploadData',function(req,res){
 	//so the parameters form part of the BODY of the requet rather than the RESTful API
 	console.dir(req.body);
 	
-	//for now, just echo the request back to the client
-	res.send(req.body);
+	pool.connect(function(err,client,done){
+		if(err){
+			console.log("not able to get connection "+err);
+			res.status(400).send(err);
+		}
+		//pull the geometry component together
+		//note that weel known text requires the points as longitude/latitude!
+		//well known text should look like: 'POINT(100 13)'
+		var geometrystring = "st_geomfromtext('POINT(" + req.body.longitude + " " + req.body.latitude + ")')";
+		
+		var querystring = "insert into formdata (name,surname,module,language,modulelist,lecturetime,geom) values ('" +req.body.name +"','"+req.body.surname + "','" + req.body.module+ "','" + req.body.language+ "','" + req.body.modulelist + "','" + req.body.lecturetime + "'," + geometrystring + ")";
+		console.log(querystring);
+		client.query(querystring,function(err,result){
+			done();
+			if(err){
+				console.log(err)
+				res.status(400).send(err);
+			}
+			
+			res.status(200).send("row inserted");
+		});
+	});
+	// //for now, just echo the request back to the client
+	// res.send(req.body);
 });
 
 	
